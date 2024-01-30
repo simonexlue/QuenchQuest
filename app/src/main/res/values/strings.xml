@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">QuenchQuest</string>
+    <string name="txtButtonLogin">Login</string>
+    <string name="txtEmailHint">Email</string>
+    <string name="txtPasswordHint">Password</string>
+    <string name="txtButtonRegister">Register</string>
+    <string name="txtSignUp">Sign Up</string>
+    <string name="txtGoToLogin">Have an account? Log in now.</string>
+    <string name="txtGoToRegister">Don\'t have an account? Click here to register</string>
 </resources>
