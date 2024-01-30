@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1042421250637",
+    "project_id": "quenchquest-ec7c1",
+    "storage_bucket": "quenchquest-ec7c1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1042421250637:android:d4d666f2d4e6cb9d98fa04",
+        "android_client_info": {
+          "package_name": "com.example.quenchquest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAULso3kkchjiEqSKtSVgCwawPzrkEcNPU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
