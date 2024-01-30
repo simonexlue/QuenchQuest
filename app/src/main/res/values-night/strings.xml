@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="txtAdd">Add</string>
+    <string name="txtLearn">Learn</string>
+    <string name="txtLogout">Log out</string>
+</resources>

@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">QuenchQuest</string>
+    <string name="txtButtonLogin">Login</string>
+    <string name="txtEmailHint">Email</string>
+    <string name="txtPasswordHint">Password</string>
+    <string name="txtButtonRegister">Register</string>
+    <string name="txtSignUp">Sign Up</string>
+    <string name="txtGoToLogin">Have an account? Log in now.</string>
+    <string name="txtGoToRegister">Don\'t have an account? Click here to register</string>
+    <string name="txtProfile">Profile</string>
+    <string name="txtStats">Stats</string>
+    <string name="txtAdd">Add</string>
+    <string name="txtLearn">Learn</string>
+    <string name="txtSettings">Settings</string>
+    <string name="txtLogout">Log out</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
