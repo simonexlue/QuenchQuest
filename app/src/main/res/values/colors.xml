@@ -5,4 +5,8 @@
 c   <color name="dark_blue">#192A51</color>
     <color name="ivory">#FFFFF3</color>
     <color name="blue">#4E8098</color>
+    <color name="eggshell">#F4F1DE</color>
+    <color name="zomp">#61988E</color>
+    <color name="grey">#D3D3D3</color>
+    <color name="dark_grey">#A9A9A9</color>
 </resources>

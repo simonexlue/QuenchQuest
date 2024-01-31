@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/blue"
     tools:context=".LoginAndRegister.Register">
 
     <EditText
@@ -15,6 +16,9 @@
         android:layout_marginBottom="368dp"
         android:ems="10"
         android:hint="@string/txtEmailHint"
+        android:backgroundTint="@color/white"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
         android:inputType="textEmailAddress"
         android:minHeight="48dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -31,7 +35,10 @@
         android:layout_marginTop="11dp"
         android:layout_marginEnd="20dp"
         android:ems="10"
+        android:backgroundTint="@color/white"
         android:hint="@string/txtPasswordHint"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
         android:inputType="textPassword"
         android:minHeight="48dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -44,7 +51,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="33dp"
+        android:background="@drawable/rounded_edittext"
+        app:backgroundTint="@color/dark_blue"
         android:text="@string/txtButtonRegister"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:textColorLink="@color/white"
+        android:textAllCaps="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/passwordRegister" />

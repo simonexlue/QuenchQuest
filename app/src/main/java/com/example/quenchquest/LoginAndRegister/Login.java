@@ -50,6 +50,7 @@ public class Login extends AppCompatActivity {
         buttonLogin = findViewById(R.id.buttonLogin);
         goToRegister = findViewById(R.id.goToRegister);
 
+
         goToRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

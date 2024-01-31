@@ -7,6 +7,7 @@ android {
     namespace 'com.example.quenchquest'
     compileSdk 33
 
+
     buildFeatures {
         viewBinding true;
     }
@@ -33,6 +34,21 @@ android {
     }
 }
 
+// Define a custom task to mark processDebugGoogleServices as untracked
+task markProcessDebugGoogleServicesUntracked {
+    // Disable state tracking for processDebugGoogleServices task
+    doLast {
+        tasks.named('processDebugGoogleServices') {
+            doNotTrackState()
+        }
+    }
+}
+
+// Attach the custom task to the configuration phase
+gradle.projectsEvaluated {
+    // Execute markProcessDebugGoogleServicesUntracked task
+    markProcessDebugGoogleServicesUntracked.doLast {}
+}
 dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
