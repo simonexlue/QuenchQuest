@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingVertical="20dp">
+
+    <EditText
+        android:id="@+id/editTextDrinkName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:hint="@string/txtDrinkNameHint"
+        android:minHeight="48dp"
+        android:textAlignment="center" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:layout_marginVertical="20dp"
+        android:paddingHorizontal="20dp">
+
+        <Button
+            android:id="@+id/minus"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:text="@string/txt_minus"
+            android:layout_weight="0.2" />
+        <EditText
+            android:id="@+id/editTextDrinkVolume"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:layout_weight="0.6"
+            android:hint="@string/txtVolumeHint"
+            android:textAlignment="center" />
+        <Button
+            android:id="@+id/plus"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:text="@string/txt_plus"
+            android:layout_weight="0.2"/>
+
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnSubmit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/txt_add_drink" />
+
+
+</LinearLayout>
