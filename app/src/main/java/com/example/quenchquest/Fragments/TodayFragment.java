@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -31,9 +32,14 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import org.w3c.dom.Text;
+
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 public class TodayFragment extends Fragment {
@@ -44,6 +50,11 @@ public class TodayFragment extends Fragment {
     CircularProgressIndicator progressIndicator;
     RecyclerView recyclerView;
     List<Drink> DrinkList = new ArrayList<>();
+    TextView noDrinks;
+    long dailyWaterGoal = 2000;
+    long totalVolumeConsumed;
+    double percentageComplete = 0;
+    TextView txtPercent;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -51,15 +62,18 @@ public class TodayFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_today, container, false);
         progressIndicator = view.findViewById(R.id.progressBar);
         recyclerView = view.findViewById(R.id.recyclerView);
+        noDrinks = view.findViewById(R.id.txtNoDrinks);
+        txtPercent = view.findViewById(R.id.txtPercentage);
         FirebaseApp.initializeApp(getContext());
-        LoadModel();
 
         return view;
     }
 
     private void LoadModel() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        String today = format.format(new Date());
         CollectionReference drinkHistoryRef = db.collection("DrinksHistory");
-        DocumentReference dateDocumentRef = drinkHistoryRef.document("2024-02-20"); //put in todays date with the right format
+        DocumentReference dateDocumentRef = drinkHistoryRef.document(today);
         CollectionReference drinksCollectionRef = dateDocumentRef.collection("drinks");
 
         drinksCollectionRef.orderBy("time", Query.Direction.ASCENDING)
@@ -68,11 +82,13 @@ public class TodayFragment extends Fragment {
             DrinkName.clear();
             DrinkVolume.clear();
             DrinkTime.clear();
+            totalVolumeConsumed = 0;
 
             for(QueryDocumentSnapshot documentSnapshot: queryDocumentSnapshots) {
                 String drinkName = documentSnapshot.getString("name");
                 long drinkVolumeLong = documentSnapshot.getLong("volume");
                 int drinkVolume = (int) drinkVolumeLong;
+                totalVolumeConsumed += drinkVolume;
                 Timestamp drinkTime = documentSnapshot.getTimestamp("time");
                 SimpleDateFormat dateFormat = new SimpleDateFormat("h:mm a");
                 String formattedTime = dateFormat.format(drinkTime.toDate());
@@ -90,8 +106,28 @@ public class TodayFragment extends Fragment {
             LinearLayoutManager lm = new LinearLayoutManager(getContext());
             recyclerView.setLayoutManager(lm);
             recyclerView.setAdapter(drinksAdapter);
+
+            percentageComplete = ((double) totalVolumeConsumed / dailyWaterGoal) * 100;
+            progressIndicator.setProgress((int) percentageComplete);
+            DecimalFormat df = new DecimalFormat("#");
+            String formattedPercentage = df.format(percentageComplete) + "%";
+            txtPercent.setText(formattedPercentage);
+
+            if (DrinkName.isEmpty()) {
+                noDrinks.setVisibility(View.VISIBLE);
+                recyclerView.setVisibility(View.GONE);
+            } else {
+                noDrinks.setVisibility(View.GONE);
+                recyclerView.setVisibility(View.VISIBLE);
+            }
         }).addOnFailureListener(e -> {
             Log.e("TAG", "Error", e);
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        LoadModel();
     }
 }

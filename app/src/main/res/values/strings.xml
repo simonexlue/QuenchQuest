@@ -20,4 +20,5 @@
     <string name="txtVolumeHint">400mL</string>
     <string name="txtDrinkNameHint">What did you drink?</string>
     <string name="txt_add_drink">Add Drink</string>
+    <string name="txtNoDrinks">You haven\'t drank anything today! Go get started!</string>
 </resources>
