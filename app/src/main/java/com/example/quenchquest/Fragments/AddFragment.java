@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.quenchquest.Interface.FragmentToActivity;
 import com.example.quenchquest.Model.Drink;
 import com.example.quenchquest.R;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -29,7 +30,6 @@ public class AddFragment extends Fragment {
     private EditText drinkNameInput;
     private EditText drinkVolumeInput;
     private String drinkName;
-    private Drink drink;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -105,7 +105,8 @@ public class AddFragment extends Fragment {
                 if(drinkName.isEmpty()) {
                     Toast.makeText(getContext(), "Please enter a drink name", Toast.LENGTH_SHORT).show();
                 } else {
-                    drink = new Drink(drinkName, volume);
+                    FragmentToActivity transfer = (FragmentToActivity) getActivity();
+                    transfer.createDrink(drinkName,volume,System.currentTimeMillis());
                     dialog.dismiss();
                     Toast.makeText(getContext(), "Drink Added", Toast.LENGTH_SHORT).show();
                 }

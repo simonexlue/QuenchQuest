@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
 
@@ -14,14 +15,26 @@ import com.example.quenchquest.Fragments.LearnFragment;
 import com.example.quenchquest.Fragments.TodayFragment;
 import com.example.quenchquest.Fragments.SettingsFragment;
 import com.example.quenchquest.Fragments.StatsFragment;
+import com.example.quenchquest.Interface.FragmentToActivity;
 import com.example.quenchquest.LoginAndRegister.Login;
+import com.example.quenchquest.Model.Drink;
 import com.example.quenchquest.databinding.ActivityMainBinding;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 
-public class MainActivity extends AppCompatActivity {
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 
+public class MainActivity extends AppCompatActivity implements FragmentToActivity {
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
     FirebaseAuth auth;
     FirebaseUser user;
     Button logout;
@@ -31,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     TodayFragment todayFragment = new TodayFragment();
     SettingsFragment settingsFragment = new SettingsFragment();
     StatsFragment statsFragment = new StatsFragment();
+    Drink drink;
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -38,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+        FirebaseApp.initializeApp(getApplicationContext());
 
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
@@ -86,5 +101,28 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+    }
+    @Override
+    public void createDrink(String name, int volume, long time) {
+        Date today = Calendar.getInstance().getTime();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        String todayDateString = dateFormat.format(today);
+        Map<String, Object> drinkData = new HashMap<>();
+        drinkData.put("name", name);
+        drinkData.put("volume", volume);
+        drinkData.put("time", FieldValue.serverTimestamp());
+        db.collection("DrinksHistory")
+                .document(todayDateString)
+                .collection("drinks")
+                .add(drinkData)
+                .addOnSuccessListener(documentReference -> {
+                    Log.d("TAG", "Drink added with ID: " + documentReference.getId());
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("TAG", "Error adding drink", e);
+                });
+//
+//        drink = new Drink(name, volume);
+//        Log.d("TAG", "drink created " + drink.getDrinkType());
     }
 }
