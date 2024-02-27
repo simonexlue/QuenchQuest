@@ -21,4 +21,10 @@
     <string name="txtDrinkNameHint">What did you drink?</string>
     <string name="txt_add_drink">Add Drink</string>
     <string name="txtNoDrinks">You haven\'t drank anything today! Go get started!</string>
+    <string name="txtNotifications">Notifications</string>
+    <string name="txtOff">Off</string>
+    <string name="txtOn">On</string>
+    <string name="txt_15minutes">Every 15 Minutes</string>
+    <string name="txt_30minutes">Every 30 Minutes</string>
+    <string name="txt_60minutes">Every 1 Hour</string>
 </resources>
