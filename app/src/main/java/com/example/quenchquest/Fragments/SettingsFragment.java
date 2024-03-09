@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,44 +11,101 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
-import com.example.quenchquest.Interface.FragmentToActivity;
 import com.example.quenchquest.LoginAndRegister.Login;
 import com.example.quenchquest.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SettingsFragment extends Fragment {
 
-    private BottomSheetDialog dialog;
-    CardView cardView;
+    BottomSheetDialog dialog;
+    CardView cardViewNotifications;
+    CardView cardViewEditProfile;
     Switch notificationsSwitch;
     SharedPreferences sharedPreferences;
+    TextView userDisplayName;
+    Button logout;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_settings, container, false);
 
-        cardView = view.findViewById(R.id.cardViewNotifications);
+        cardViewNotifications = view.findViewById(R.id.cardViewNotifications);
+        cardViewEditProfile = view.findViewById(R.id.cardViewProfile);
         notificationsSwitch = view.findViewById(R.id.notificationSwitch);
+        userDisplayName = view.findViewById(R.id.txtViewSettings);
+        logout = view.findViewById(R.id.btnLogout);
+
         sharedPreferences = getActivity().getPreferences(Context.MODE_PRIVATE);
         boolean switchState = sharedPreferences.getBoolean("notificationSwitchState", false);
         notificationsSwitch.setChecked(switchState);
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user != null) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            DocumentReference userRef = db.collection("users").document(user.getUid());
+            userRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.exists()) {
+                        String displayName = documentSnapshot.getString("displayName");
+                        if (displayName != null && !displayName.isEmpty()) {
+                            userDisplayName.setText("Hello, " + displayName);
+                        } else {
+                            userDisplayName.setText("Hello, User");
+                        }
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e("TAG", "Error retrieving display name from Firestore", e);
+                }
+            });
+        }
 
 
         dialog = new BottomSheetDialog(this.getContext());
         createDialog();
-        cardView.setOnClickListener(new View.OnClickListener() {
+        cardViewNotifications.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dialog.show();
+            }
+        });
+        cardViewEditProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getParentFragmentManager().beginTransaction()
+                        .replace(R.id.frame_layout, new EditProfileFragment())
+                        .addToBackStack(null) // Optional: Add to back stack to enable back navigation
+                        .commit();
+            }
+        });
+
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseAuth.getInstance().signOut();
+                Intent intent = new Intent(getContext(), Login.class);
+                startActivity(intent);
             }
         });
 

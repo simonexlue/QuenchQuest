@@ -27,4 +27,8 @@
     <string name="txt_15minutes">Every 15 Minutes</string>
     <string name="txt_30minutes">Every 30 Minutes</string>
     <string name="txt_60minutes">Every 1 Hour</string>
+    <string name="txtProfile">Edit Profile</string>
+    <string name="txtEdit">Edit</string>
+    <string name="txtChoosePicture">Choose your profile picture</string>
+    <string name="txtName">Display Name</string>
 </resources>

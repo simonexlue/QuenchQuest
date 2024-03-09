@@ -30,6 +30,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -68,18 +69,10 @@ public class MainActivity extends AppCompatActivity implements FragmentToActivit
             startActivity(intent);
             finish();
         }
+        storeUserDataInFirestore();
 
         getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout,addFragment).commit();
         binding.bottomNavigationView.setSelectedItemId(R.id.add);
-//        logout.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                FirebaseAuth.getInstance().signOut();
-//                Intent intent = new Intent(getApplicationContext(), Login.class);
-//                startActivity(intent);
-//                finish();
-//            }
-//        });
 
         //Fragment switching for Bottom Navigation Menu
         binding.bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
@@ -129,5 +122,16 @@ public class MainActivity extends AppCompatActivity implements FragmentToActivit
                 .addOnFailureListener(e -> {
                     Log.e("TAG", "Error adding drink", e);
                 });
+    }
+    private void storeUserDataInFirestore() {
+        Map<String, Object> userData = new HashMap<>();
+        userData.put("email", user.getEmail());
+        userData.put("displayName", user.getDisplayName());
+        userData.put("profilePictureUrl", user.getPhotoUrl().toString()); // Assuming you want to store the profile picture URL
+        db.collection("users")
+                .document(user.getUid())
+                .set(userData, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> Log.d("MainActivity", "User data stored successfully"))
+                .addOnFailureListener(e -> Log.e("MainActivity", "Error storing user data", e));
     }
 }
