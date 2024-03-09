@@ -37,15 +37,6 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".AlarmReceiver"
-            android:exported="true"
-            android:permission="android.permission.ACCESS_NOTIFICATION_POLICY">
-            <intent-filter>
-                <action android:name="android.intent.action.ACTION_TRIGGER_ALARM" />
-                <!-- Add more actions if needed -->
-            </intent-filter>
-        </receiver>
-
     </application>
 
 </manifest>

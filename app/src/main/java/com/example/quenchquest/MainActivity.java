@@ -69,9 +69,6 @@ public class MainActivity extends AppCompatActivity implements FragmentToActivit
             finish();
         }
 
-        createNotificationChannel();
-        scheduleAlarm();
-
         getSupportFragmentManager().beginTransaction().replace(R.id.frame_layout,addFragment).commit();
         binding.bottomNavigationView.setSelectedItemId(R.id.add);
 //        logout.setOnClickListener(new View.OnClickListener() {
@@ -111,30 +108,6 @@ public class MainActivity extends AppCompatActivity implements FragmentToActivit
                 return false;
             }
         });
-    }
-
-    private void createNotificationChannel() {
-
-        CharSequence name = "quenchquestReminderChannel";
-        String description = "Channel for Alarm Manager";
-        int importance = NotificationManager.IMPORTANCE_HIGH;
-        NotificationChannel channel = new NotificationChannel("QuenchQuest", name, importance);
-        channel.setDescription(description);
-
-        NotificationManager notificationManager = getSystemService(NotificationManager.class);
-        notificationManager.createNotificationChannel(channel);
-    }
-
-    private void scheduleAlarm() {
-        Intent intent = new Intent(this, AlarmReceiver.class);
-        intent.setAction("com.example.quenchquest.ACTION_TRIGGER_ALARM");
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
-
-        long intervalMillis = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), intervalMillis, pendingIntent);
-        Log.d("Alarm", "Alarm scheduled to trigger every 15 minutes");
     }
 
     @Override
