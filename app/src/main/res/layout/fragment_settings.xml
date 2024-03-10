@@ -98,7 +98,7 @@
     </androidx.cardview.widget.CardView>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/cardViewUnknown"
+        android:id="@+id/cardViewSetGoal"
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:layout_below="@+id/cardViewProfile"
@@ -114,13 +114,15 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="150dp"
+                android:id="@+id/txtWaterGoal"
+                android:layout_width="250dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:paddingStart="16dp"
-                android:text="@string/txtProfile"
+                android:text="@string/txtGoal"
                 android:textColor="@color/dark_blue"
                 android:textSize="20sp" />
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 

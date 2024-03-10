@@ -28,6 +28,7 @@ import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -101,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements FragmentToActivit
                 return false;
             }
         });
+
     }
 
     @Override
@@ -108,13 +110,13 @@ public class MainActivity extends AppCompatActivity implements FragmentToActivit
         Date today = Calendar.getInstance().getTime();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         String todayDateString = dateFormat.format(today);
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
         Map<String, Object> drinkData = new HashMap<>();
         drinkData.put("name", name);
         drinkData.put("volume", volume);
         drinkData.put("time", FieldValue.serverTimestamp());
-        db.collection("DrinksHistory")
-                .document(todayDateString)
-                .collection("drinks")
+        db.collection("DrinksHistory").document(userId).collection(todayDateString)
                 .add(drinkData)
                 .addOnSuccessListener(documentReference -> {
                     Log.d("TAG", "Drink added with ID: " + documentReference.getId());
@@ -123,11 +125,25 @@ public class MainActivity extends AppCompatActivity implements FragmentToActivit
                     Log.e("TAG", "Error adding drink", e);
                 });
     }
+
+    @Override
+    public void onGoalChanged(int newGoal) {
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DocumentReference userDocRef = db.collection("users").document(userId);
+
+        userDocRef.update("goal", newGoal).addOnSuccessListener(aVoid -> Log.d("TAG", "Goal updated successfully"))
+                .addOnFailureListener(e -> Log.e("TAG", "Error updating goal", e));
+    }
+
     private void storeUserDataInFirestore() {
         Map<String, Object> userData = new HashMap<>();
         userData.put("email", user.getEmail());
         userData.put("displayName", user.getDisplayName());
-        userData.put("profilePictureUrl", user.getPhotoUrl().toString()); // Assuming you want to store the profile picture URL
+
+        if (user.getPhotoUrl() != null) {
+            userData.put("profilePictureUrl", user.getPhotoUrl().toString());
+        }
+
         db.collection("users")
                 .document(user.getUid())
                 .set(userData, SetOptions.merge())

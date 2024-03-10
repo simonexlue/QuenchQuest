@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/dark_blue">
 
     <ImageView
         android:id="@+id/imgProfilePic"
@@ -26,7 +27,7 @@
         android:layout_marginBottom="10dp"
         android:text="@string/txtEdit"
         android:textAllCaps="true"
-        android:textColor="@color/dark_blue"
+        android:textColor="@color/ivory"
         app:layout_constraintBottom_toTopOf="@+id/imgProfilePic"
         app:layout_constraintEnd_toEndOf="@+id/imgProfilePic"
         app:layout_constraintTop_toTopOf="parent" />
@@ -43,7 +44,11 @@
         android:inputType="text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imgProfilePic" />
+        app:layout_constraintTop_toBottomOf="@+id/imgProfilePic"
+        android:textColor="@color/ivory"
+        android:textColorHint="@color/ivory"
+        android:backgroundTint="@color/white"
+        />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

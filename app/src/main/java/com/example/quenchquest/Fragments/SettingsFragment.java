@@ -1,24 +1,32 @@
 package com.example.quenchquest.Fragments;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.quenchquest.Interface.FragmentToActivity;
 import com.example.quenchquest.LoginAndRegister.Login;
+import com.example.quenchquest.MainActivity;
 import com.example.quenchquest.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -29,6 +37,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.w3c.dom.Text;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -37,9 +47,11 @@ public class SettingsFragment extends Fragment {
     BottomSheetDialog dialog;
     CardView cardViewNotifications;
     CardView cardViewEditProfile;
+    CardView cardViewGoal;
     Switch notificationsSwitch;
     SharedPreferences sharedPreferences;
     TextView userDisplayName;
+    TextView txtViewGoal;
     Button logout;
 
     @Override
@@ -49,6 +61,8 @@ public class SettingsFragment extends Fragment {
 
         cardViewNotifications = view.findViewById(R.id.cardViewNotifications);
         cardViewEditProfile = view.findViewById(R.id.cardViewProfile);
+        cardViewGoal = view.findViewById(R.id.cardViewSetGoal);
+        txtViewGoal = view.findViewById(R.id.txtWaterGoal);
         notificationsSwitch = view.findViewById(R.id.notificationSwitch);
         userDisplayName = view.findViewById(R.id.txtViewSettings);
         logout = view.findViewById(R.id.btnLogout);
@@ -57,6 +71,8 @@ public class SettingsFragment extends Fragment {
         boolean switchState = sharedPreferences.getBoolean("notificationSwitchState", false);
         notificationsSwitch.setChecked(switchState);
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
+        fetchDailyGoal();
 
         if (user != null) {
             FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -97,6 +113,49 @@ public class SettingsFragment extends Fragment {
                         .replace(R.id.frame_layout, new EditProfileFragment())
                         .addToBackStack(null) // Optional: Add to back stack to enable back navigation
                         .commit();
+            }
+        });
+        cardViewGoal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                TextView title = new TextView(getContext());
+                title.setText("Set Daily Goal");
+                title.setTextSize(20);
+                title.setTextColor(ContextCompat.getColor(getContext(), R.color.dark_blue));
+                title.setPadding(0,10,0,10);
+                title.setGravity(Gravity.CENTER_HORIZONTAL);
+                // Show a dialog or bottom sheet for goal input
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setCustomTitle(title);
+
+                // Set up the input
+                final EditText input = new EditText(getContext());
+                input.setInputType(InputType.TYPE_CLASS_NUMBER);
+                input.setTextColor(ContextCompat.getColor(getContext(), R.color.dark_blue));
+                builder.setView(input);
+
+                // Set up the buttons
+                builder.setPositiveButton("Set", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String newGoalText = "Daily Goal: " + input.getText().toString() + " mL";
+                        txtViewGoal.setText(newGoalText);
+
+                        int newGoal = Integer.parseInt(input.getText().toString());
+                        FragmentToActivity transfer = (FragmentToActivity) getActivity();
+                        transfer.onGoalChanged(newGoal);
+
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
             }
         });
 
@@ -177,5 +236,30 @@ public class SettingsFragment extends Fragment {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean("notificationSwitchState", notificationsSwitch.isChecked());
         editor.apply();
+    }
+    private void fetchDailyGoal() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            DocumentReference userRef = db.collection("users").document(user.getUid());
+            userRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot.exists()) {
+                        Long goal = documentSnapshot.getLong("goal");
+                        if (goal != null) {
+                            // Update the UI with the fetched goal
+                            String goalText = "Daily Goal: " + goal + " mL";
+                            txtViewGoal.setText(goalText);
+                        }
+                    }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e("SettingsFragment", "Error retrieving daily goal from Firestore", e);
+                }
+            });
+        }
     }
 }

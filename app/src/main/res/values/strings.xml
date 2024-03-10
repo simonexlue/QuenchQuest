@@ -31,4 +31,5 @@
     <string name="txtEdit">Edit</string>
     <string name="txtChoosePicture">Choose your profile picture</string>
     <string name="txtName">Display Name</string>
+    <string name="txtGoal">Daily Goal: 2500 mL</string>
 </resources>
