@@ -143,6 +143,21 @@ public class MainActivity extends AppCompatActivity implements FragmentToActivit
         if (user.getPhotoUrl() != null) {
             userData.put("profilePictureUrl", user.getPhotoUrl().toString());
         }
+        Map<String, Object> achievementsData = new HashMap<>();
+        achievementsData.put("dailyCompleted", false);
+        achievementsData.put("currentStreak",0);
+        achievementsData.put("3day", false);
+        achievementsData.put("7day", false);
+        achievementsData.put("14day", false);
+        achievementsData.put("30day", false);
+        achievementsData.put("60day", false);
+        achievementsData.put("90day", false);
+        achievementsData.put("365day", false);
+
+        userData.put("achievements", achievementsData);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String today = dateFormat.format(new Date());
+        userData.put("lastUpdated", today);
 
         db.collection("users")
                 .document(user.getUid())
