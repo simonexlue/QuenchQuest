@@ -136,33 +136,47 @@ public class MainActivity extends AppCompatActivity implements FragmentToActivit
     }
 
     private void storeUserDataInFirestore() {
-        Map<String, Object> userData = new HashMap<>();
-        userData.put("email", user.getEmail());
-        userData.put("displayName", user.getDisplayName());
+        DocumentReference userDocRef = db.collection("users").document(user.getUid());
 
-        if (user.getPhotoUrl() != null) {
-            userData.put("profilePictureUrl", user.getPhotoUrl().toString());
-        }
-        Map<String, Object> achievementsData = new HashMap<>();
-        achievementsData.put("dailyCompleted", false);
-        achievementsData.put("currentStreak",0);
-        achievementsData.put("3day", false);
-        achievementsData.put("7day", false);
-        achievementsData.put("14day", false);
-        achievementsData.put("30day", false);
-        achievementsData.put("60day", false);
-        achievementsData.put("90day", false);
-        achievementsData.put("365day", false);
+        userDocRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Log.d("MainActivity", "User data already exists in Firestore");
+                // Skip initialization since data already exists
+                return;
+            }
 
-        userData.put("achievements", achievementsData);
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        String today = dateFormat.format(new Date());
-        userData.put("lastUpdated", today);
+            // Data doesn't exist, proceed with initialization
+            Map<String, Object> userData = new HashMap<>();
+            userData.put("email", user.getEmail());
+            userData.put("displayName", user.getDisplayName());
 
-        db.collection("users")
-                .document(user.getUid())
-                .set(userData, SetOptions.merge())
-                .addOnSuccessListener(aVoid -> Log.d("MainActivity", "User data stored successfully"))
-                .addOnFailureListener(e -> Log.e("MainActivity", "Error storing user data", e));
+            if (user.getPhotoUrl() != null) {
+                userData.put("profilePictureUrl", user.getPhotoUrl().toString());
+            }
+
+            Map<String, Object> achievementsData = new HashMap<>();
+            achievementsData.put("dailyCompleted", false);
+            achievementsData.put("currentStreak", 0);
+            // Add other achievement fields here
+
+            userData.put("achievements", achievementsData);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            String today = dateFormat.format(new Date());
+            userData.put("lastUpdated", today);
+
+            userDocRef.set(userData, SetOptions.merge())
+                    .addOnSuccessListener(aVoid -> {
+                        Log.d("MainActivity", "User data stored successfully");
+                        // Retrieve and set current streak
+                        userDocRef.get().addOnSuccessListener(snapshot -> {
+                            Map<String, Object> achievementsFromFirestore = (Map<String, Object>) snapshot.get("achievements");
+                            if (achievementsFromFirestore != null) {
+                                int currentStreak = (int) achievementsFromFirestore.get("currentStreak");
+                                statsFragment.setCurrentStreak(currentStreak);
+                            }
+                        }).addOnFailureListener(e -> Log.e("MainActivity", "Error retrieving current streak", e));
+                    })
+                    .addOnFailureListener(e -> Log.e("MainActivity", "Error storing user data", e));
+        }).addOnFailureListener(e -> Log.e("MainActivity", "Error checking user data existence", e));
     }
 }

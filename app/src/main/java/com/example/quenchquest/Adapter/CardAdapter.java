@@ -21,6 +21,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     private int[] images = {R.drawable.trophy, R.drawable.trophy, R.drawable.goldfish, R.drawable.clownfish, R.drawable.piranha, R.drawable.koi, R.drawable.barracuda,
             R.drawable.dolphin, R.drawable.shark};
     private boolean[] obtained = {true, false, false, false, false, false, false, false, false};
+    private int currentStreak = 0;
 
     @NonNull
     @Override
@@ -33,8 +34,13 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int i) {
         holder.itemTitle.setText(titles[i]);
-        holder.itemText.setText(texts[i]);
         holder.itemImage.setImageResource(images[i]);
+
+        if(i == 0) {
+            holder.itemText.setText("Your current streak is: " + currentStreak + " days!");
+        } else {
+            holder.itemText.setText(texts[i]);
+        }
 
         if (!obtained[i]) {
             holder.overlay.setVisibility(View.VISIBLE);
@@ -70,5 +76,13 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
                 }
             });
         }
+    }
+    public void setCurrentStreak(int streak) {
+        this.currentStreak = streak;
+        notifyDataSetChanged();
+    }
+    public void updateAchievementStatus(boolean dailyCompleted) {
+        obtained[1] = dailyCompleted; // Assuming the second card item's obtained status depends on dailyCompleted
+        notifyDataSetChanged(); // Notify adapter of dataset change
     }
 }

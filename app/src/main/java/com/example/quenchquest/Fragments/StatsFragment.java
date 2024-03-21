@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,6 +30,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,8 +44,10 @@ public class StatsFragment extends Fragment {
     ExecutorService executorService = Executors.newSingleThreadExecutor();
     RecyclerView recyclerView;
     RecyclerView.LayoutManager layoutManager;
-    RecyclerView.Adapter adapter;
+    CardAdapter adapter;
     int totalVolume = 0;
+    private boolean streakIncrementedToday = false; // Flag to track if streak has already been incremented today
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -58,6 +62,65 @@ public class StatsFragment extends Fragment {
 
         calculateTotalVolume();
 
+        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DocumentReference userDocRef = db.collection("users").document(userId);
+
+        // Get the current date
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        String today = dateFormat.format(new Date());
+
+        // Update dailyCompleted if totalVolume > goal
+        userDocRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                int goal = documentSnapshot.getLong("goal").intValue();
+                int currentStreak = documentSnapshot.getLong("achievements.currentStreak").intValue();
+                adapter.setCurrentStreak(currentStreak);
+
+                boolean dailyCompleted = totalVolume >= goal;
+                boolean isToday = today.equals(documentSnapshot.getString("lastUpdated"));
+
+                Map<String, Object> updates = new HashMap<>();
+                updates.put("achievements.dailyCompleted", dailyCompleted);
+
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(new Date());
+                calendar.set(Calendar.HOUR_OF_DAY, 23); // 11 PM
+                calendar.set(Calendar.MINUTE, 59); // 59 minutes
+                calendar.set(Calendar.SECOND, 59); // 59 seconds
+                Date thresholdTime = calendar.getTime();
+
+                if(isToday) {
+                    if (dailyCompleted && !streakIncrementedToday) {
+                        updates.put("achievements.currentStreak", currentStreak + 1);
+                        adapter.updateAchievementStatus(true);
+                        streakIncrementedToday = true;
+                    } else {
+                        if (new Date().after(thresholdTime)) {
+                            // Reset the streak to 0 if today's goal is not completed and past the threshold time
+                            updates.put("achievements.currentStreak", 0);
+                            adapter.updateAchievementStatus(false);
+                        }
+                    }
+                } else {
+                    streakIncrementedToday = false;
+                }
+                updates.put("lastUpdated", today);
+                Log.d("TAG", "dailycompleted" + dailyCompleted);
+                Log.d("TAG", "isToday" + isToday);
+                Log.d("TAG", "streakIncrementedToday" + streakIncrementedToday);
+                Log.d("TAG", "currentstreak" + currentStreak);
+
+                // Update achievements in Firestore
+                userDocRef.update(updates)
+                        .addOnSuccessListener(aVoid -> Log.d("StatsFragment", "Achievements updated successfully"))
+                        .addOnFailureListener(e -> Log.e("StatsFragment", "Error updating achievements", e));
+
+                adapter.setCurrentStreak(currentStreak);
+            } else {
+                Log.e("StatsFragment", "User document not found");
+            }
+        }).addOnFailureListener(e -> Log.e("StatsFragment", "Error retrieving user document", e));
+
         return view;
     }
 
@@ -68,67 +131,25 @@ public class StatsFragment extends Fragment {
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             CollectionReference drinkHistoryRef = db.collection("DrinksHistory").document(userId).collection(today);
             drinkHistoryRef.get().addOnCompleteListener(task -> {
-               if(task.isSuccessful()) {
-                   totalVolume = 0;
-                   for (QueryDocumentSnapshot document : task.getResult()) {
-                       int volume = document.getLong("volume").intValue();
-                       totalVolume += volume;
-                   }
-                   Log.d("TAG", "Total volume for user " + totalVolume);
-                   DocumentReference userDocRef = db.collection("users").document(userId);
-                   int finalTotalVolume = totalVolume;
-                   userDocRef.get().addOnSuccessListener(documentSnapshot -> {
-                       if (documentSnapshot.exists()) {
-                           int goal = documentSnapshot.getLong("goal").intValue();
-                           updateAchievements(finalTotalVolume, goal);
-                       } else {
-                           Log.e("StatsFragment", "User document not found");
-                       }
-                   }).addOnFailureListener(e -> Log.e("StatsFragment", "Error retrieving user document", e));
-               } else {
-                   Log.e("StatsFragment", "Error getting documents: ", task.getException());
-               }
+                if(task.isSuccessful()) {
+                    totalVolume = 0;
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        int volume = document.getLong("volume").intValue();
+                        totalVolume += volume;
+                    }
+                    Log.d("TAG", "Total volume for user " + totalVolume);
+                } else {
+                    Log.e("StatsFragment", "Error getting documents: ", task.getException());
+                }
             });
         });
     }
 
-    private void updateAchievements(int finalTotalVolume, int goal) {
-        String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DocumentReference userDocRef = db.collection("users").document(userId);
-
-        // Get the current date
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        String today = dateFormat.format(new Date());
-
-        // Update dailyCompleted if totalVolume > goal
-        boolean dailyCompleted = finalTotalVolume >= goal;
-        Map<String, Object> updates = new HashMap<>();
-        updates.put("achievements.dailyCompleted", dailyCompleted);
-
-        // Update currentStreak if totalVolume > goal and it's a new day
-        userDocRef.get().addOnSuccessListener(documentSnapshot -> {
-            Map<String, Object> userData = documentSnapshot.getData();
-            if (userData != null) {
-                Map<String, Object> achievementsData = (Map<String, Object>) userData.get("achievements");
-                if (achievementsData != null) {
-                    boolean lastDailyCompleted = (boolean) achievementsData.get("dailyCompleted");
-                    boolean isToday = today.equals((String) userData.get("lastUpdated"));
-
-                    if (dailyCompleted && !lastDailyCompleted && isToday) {
-                        int currentStreak = ((Long) achievementsData.get("currentStreak")).intValue();
-                        updates.put("achievements.currentStreak", currentStreak + 1);
-                        updates.put("lastUpdated", today);
-                    }
-                    Log.d("StatsFragment", "dailyCompleted: " + dailyCompleted);
-                    Log.d("StatsFragment", "lastDailyCompleted: " + lastDailyCompleted);
-                    Log.d("StatsFragment", "isToday: " + isToday);
-                }
-            }
-
-            // Update achievements in Firestore
-            userDocRef.update(updates)
-                    .addOnSuccessListener(aVoid -> Log.d("StatsFragment", "Achievements updated successfully"))
-                    .addOnFailureListener(e -> Log.e("StatsFragment", "Error updating achievements", e));
-        });
+    public void setCurrentStreak(int streak) {
+        if (adapter != null) {
+            adapter.setCurrentStreak(streak);
+        } else {
+            Log.e("StatsFragment", "Adapter is null");
+        }
     }
 }
