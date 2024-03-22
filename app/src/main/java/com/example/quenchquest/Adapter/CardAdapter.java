@@ -1,5 +1,6 @@
 package com.example.quenchquest.Adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +21,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
             "Complete 60 days consecutively to get this achievement!", "Complete 90 days consecutively to get this achievement!", "Complete 365 days consecutively to get this achievement!"};
     private int[] images = {R.drawable.trophy, R.drawable.trophy, R.drawable.goldfish, R.drawable.clownfish, R.drawable.piranha, R.drawable.koi, R.drawable.barracuda,
             R.drawable.dolphin, R.drawable.shark};
-    private boolean[] obtained = {true, false, false, false, false, false, false, false, false};
+    private boolean[] achievedStatus = new boolean[titles.length];
     private int currentStreak = 0;
 
     @NonNull
@@ -35,17 +36,20 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int i) {
         holder.itemTitle.setText(titles[i]);
         holder.itemImage.setImageResource(images[i]);
+        Log.d("TAG", "achieved " + achievedStatus[1]);
+
 
         if(i == 0) {
             holder.itemText.setText("Your current streak is: " + currentStreak + " days!");
+            achievedStatus[0] = true;
         } else {
             holder.itemText.setText(texts[i]);
         }
 
-        if (!obtained[i]) {
-            holder.overlay.setVisibility(View.VISIBLE);
-        } else {
+        if (achievedStatus[i]) {
             holder.overlay.setVisibility(View.GONE);
+        } else {
+            holder.overlay.setVisibility(View.VISIBLE);
         }
     }
 
@@ -81,8 +85,8 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
         this.currentStreak = streak;
         notifyDataSetChanged();
     }
-    public void updateAchievementStatus(boolean dailyCompleted) {
-        obtained[1] = dailyCompleted; // Assuming the second card item's obtained status depends on dailyCompleted
-        notifyDataSetChanged(); // Notify adapter of dataset change
+    public void setAchievedStatus(int position, boolean status) {
+        achievedStatus[position] = status;
+        notifyItemChanged(position); // Notify adapter of specific item change
     }
 }

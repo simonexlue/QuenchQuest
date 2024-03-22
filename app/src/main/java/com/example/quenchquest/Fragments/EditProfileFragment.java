@@ -174,6 +174,7 @@ public class EditProfileFragment extends Fragment {
                 .setPhotoUri(photoUri)
                 .build();
 
+        assert user != null;
         user.updateProfile(profileUpdates)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

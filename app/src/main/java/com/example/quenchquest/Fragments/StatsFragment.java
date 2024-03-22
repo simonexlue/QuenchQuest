@@ -1,5 +1,7 @@
 package com.example.quenchquest.Fragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,6 +50,15 @@ public class StatsFragment extends Fragment {
     int totalVolume = 0;
     private boolean streakIncrementedToday = false; // Flag to track if streak has already been incremented today
 
+    private SharedPreferences sharedPreferences;
+    private static final String PREF_STREAK_INCREMENTED_TODAY = "streak_incremented_today";
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        sharedPreferences = requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        streakIncrementedToday = sharedPreferences.getBoolean(PREF_STREAK_INCREMENTED_TODAY, false);
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -72,9 +83,12 @@ public class StatsFragment extends Fragment {
         // Update dailyCompleted if totalVolume > goal
         userDocRef.get().addOnSuccessListener(documentSnapshot -> {
             if (documentSnapshot.exists()) {
-                int goal = documentSnapshot.getLong("goal").intValue();
-                int currentStreak = documentSnapshot.getLong("achievements.currentStreak").intValue();
-                adapter.setCurrentStreak(currentStreak);
+                Long goalLong = documentSnapshot.getLong("goal");
+                int goal = (goalLong != null) ? goalLong.intValue() : 0;
+
+
+                Long currentStreakLong = documentSnapshot.getLong("achievements.currentStreak");
+                int currentStreak = (currentStreakLong != null) ? currentStreakLong.intValue() : 0;
 
                 boolean dailyCompleted = totalVolume >= goal;
                 boolean isToday = today.equals(documentSnapshot.getString("lastUpdated"));
@@ -89,26 +103,37 @@ public class StatsFragment extends Fragment {
                 calendar.set(Calendar.SECOND, 59); // 59 seconds
                 Date thresholdTime = calendar.getTime();
 
-                if(isToday) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                if(isToday && dailyCompleted) {
+                    adapter.setAchievedStatus(1, true);
+                }
+
+                if (isToday) {
                     if (dailyCompleted && !streakIncrementedToday) {
                         updates.put("achievements.currentStreak", currentStreak + 1);
-                        adapter.updateAchievementStatus(true);
                         streakIncrementedToday = true;
+                        editor.putBoolean(PREF_STREAK_INCREMENTED_TODAY, true);
                     } else {
                         if (new Date().after(thresholdTime)) {
                             // Reset the streak to 0 if today's goal is not completed and past the threshold time
                             updates.put("achievements.currentStreak", 0);
-                            adapter.updateAchievementStatus(false);
+                            streakIncrementedToday = false;
+                            editor.putBoolean(PREF_STREAK_INCREMENTED_TODAY, false);
                         }
                     }
+                    editor.apply(); // Apply changes to SharedPreferences
                 } else {
                     streakIncrementedToday = false;
+                    editor.putBoolean(PREF_STREAK_INCREMENTED_TODAY, false);
+                    editor.apply(); // Apply changes to SharedPreference
                 }
                 updates.put("lastUpdated", today);
-                Log.d("TAG", "dailycompleted" + dailyCompleted);
-                Log.d("TAG", "isToday" + isToday);
-                Log.d("TAG", "streakIncrementedToday" + streakIncrementedToday);
-                Log.d("TAG", "currentstreak" + currentStreak);
+//                Log.d("TAG", "pref " + streakIncrementedToday);
+//                Log.d("TAG", "dailycompleted" + dailyCompleted);
+//                Log.d("TAG", "isToday" + isToday);
+//                Log.d("TAG", "streakIncrementedToday" + streakIncrementedToday);
+//                Log.d("TAG", "currentstreak" + currentStreak);
+
 
                 // Update achievements in Firestore
                 userDocRef.update(updates)

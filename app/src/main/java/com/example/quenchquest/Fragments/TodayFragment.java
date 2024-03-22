@@ -136,7 +136,11 @@ public class TodayFragment extends Fragment {
                             Drink eachDrink = new Drink(DrinkName.get(i), DrinkVolume.get(i), DrinkTime.get(i));
                             DrinkList.add(eachDrink);
                         }
-                        getActivity().runOnUiThread(()-> updateUI());
+                        if (getActivity() != null) {
+                            getActivity().runOnUiThread(this::updateUI);
+                        } else {
+                            Log.e("TodayFragment", "Fragment is not attached to any activity");
+                        }
                     }).addOnFailureListener(e -> {
                         Log.e("TAG", "Error", e);
                     });
