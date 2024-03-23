@@ -36,7 +36,7 @@ public class CardAdapter extends RecyclerView.Adapter<CardAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int i) {
         holder.itemTitle.setText(titles[i]);
         holder.itemImage.setImageResource(images[i]);
-        Log.d("TAG", "achieved " + achievedStatus[1]);
+//        Log.d("TAG", "achieved " + achievedStatus[1]);
 
 
         if(i == 0) {

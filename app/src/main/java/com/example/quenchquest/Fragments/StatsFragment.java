@@ -123,6 +123,7 @@ public class StatsFragment extends Fragment {
                     }
                     editor.apply(); // Apply changes to SharedPreferences
                 } else {
+                    updates.put("achievements.currentStreak", 0);
                     streakIncrementedToday = false;
                     editor.putBoolean(PREF_STREAK_INCREMENTED_TODAY, false);
                     editor.apply(); // Apply changes to SharedPreference
@@ -132,8 +133,51 @@ public class StatsFragment extends Fragment {
 //                Log.d("TAG", "dailycompleted" + dailyCompleted);
 //                Log.d("TAG", "isToday" + isToday);
 //                Log.d("TAG", "streakIncrementedToday" + streakIncrementedToday);
-//                Log.d("TAG", "currentstreak" + currentStreak);
+                Log.d("TAG", "currentstreak" + currentStreak);
 
+                if (currentStreak >= 365) {
+                    updates.put("365day", true);
+                    adapter.setAchievedStatus(8, true);
+                    adapter.setAchievedStatus(7, true);
+                    adapter.setAchievedStatus(6, true);
+                    adapter.setAchievedStatus(5, true);
+                    adapter.setAchievedStatus(4, true);
+                    adapter.setAchievedStatus(3, true);
+                    adapter.setAchievedStatus(2, true);
+                } else if (currentStreak >= 90) {
+                    updates.put("90day", true);
+                    adapter.setAchievedStatus(7, true);
+                    adapter.setAchievedStatus(6, true);
+                    adapter.setAchievedStatus(5, true);
+                    adapter.setAchievedStatus(4, true);
+                    adapter.setAchievedStatus(3, true);
+                    adapter.setAchievedStatus(2, true);
+                } else if (currentStreak >= 60) {
+                    updates.put("60day", true);
+                    adapter.setAchievedStatus(6, true);
+                    adapter.setAchievedStatus(5, true);
+                    adapter.setAchievedStatus(4, true);
+                    adapter.setAchievedStatus(3, true);
+                    adapter.setAchievedStatus(2, true);
+                } else if (currentStreak >= 30) {
+                    updates.put("30day", true);
+                    adapter.setAchievedStatus(5, true);
+                    adapter.setAchievedStatus(4, true);
+                    adapter.setAchievedStatus(3, true);
+                    adapter.setAchievedStatus(2, true);
+                } else if (currentStreak >= 14) {
+                    updates.put("14day", true);
+                    adapter.setAchievedStatus(4, true);
+                    adapter.setAchievedStatus(3, true);
+                    adapter.setAchievedStatus(2, true);
+                } else if (currentStreak >= 7) {
+                    updates.put("7day", true);
+                    adapter.setAchievedStatus(3, true);
+                    adapter.setAchievedStatus(2, true);
+                } else if (currentStreak >= 3) {
+                    updates.put("3day", true);
+                    adapter.setAchievedStatus(2, true);
+                }
 
                 // Update achievements in Firestore
                 userDocRef.update(updates)
