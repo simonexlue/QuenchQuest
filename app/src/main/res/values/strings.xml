@@ -32,4 +32,7 @@
     <string name="txtChoosePicture">Choose your profile picture</string>
     <string name="txtName">Display Name</string>
     <string name="txtGoal">Daily Goal: 2000 mL</string>
+    <string name="learn_more">Learn more on the details and benefits of hydration from these sources:</string>
+    <string name="btnHealthBC">Read HealthBC Article</string>
+    <string name="txtBMI">Calculate your BMI!</string>
 </resources>

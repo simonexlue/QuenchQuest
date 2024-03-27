@@ -16,6 +16,7 @@
         app:layout_constraintTop_toTopOf="parent"
         android:textColor="@color/ivory"
         android:text="Achievements"
+        android:textStyle="bold"
         android:textSize="16sp"
         android:textAllCaps="true"
         android:gravity="center_vertical|center_horizontal"/>
