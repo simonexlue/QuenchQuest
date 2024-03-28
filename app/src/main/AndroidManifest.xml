@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.SEND_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -40,6 +42,15 @@
         <activity
             android:name=".WebViewActivity"
             android:exported="true"/>
+        <receiver
+            android:name=".NotificationReceiver"
+            android:exported="true"
+            android:enabled="true">
+            <intent-filter>
+                <action android:name="com.example.quenchquest.NOTIFICATION_RECEIVED"/>
+            </intent-filter>
+
+        </receiver>
     </application>
 
 </manifest>

@@ -8,6 +8,7 @@ import android.app.AlarmManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements FragmentToActivit
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         FirebaseApp.initializeApp(getApplicationContext());
+        NotificationScheduler.scheduleNotification(this);
 
         auth = FirebaseAuth.getInstance();
         user = auth.getCurrentUser();
